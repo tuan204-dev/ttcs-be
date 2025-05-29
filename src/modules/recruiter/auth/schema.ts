@@ -1,11 +1,11 @@
 import Joi from 'joi'
 
-export const loginUserSchema = Joi.object({
+export const loginWorkerSchema = Joi.object({
     loginName: Joi.string().min(5).required(),
     password: Joi.string().min(8).required()
 })
 
-export const logoutUserSchema = Joi.object({
+export const logoutWorkerSchema = Joi.object({
     refreshToken: Joi.string().required()
 })
 
@@ -27,7 +27,7 @@ export const sendVerifyEmailSchema = Joi.object({
     email: Joi.string().email().required()
 })
 
-export const createUserSchema = Joi.object({
+export const createWorkerSchema = Joi.object({
     token: Joi.string().required(),
     loginName: Joi.string().min(3).max(30).required(),
     password: Joi.string().min(8).required(),

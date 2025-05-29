@@ -1,12 +1,12 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface IVerifyToken extends Document {
+export interface IWorkerVerifyToken extends Document {
     email: string
     token: string
     expiredAt: Date
 }
 
-const verifyTokenSchema = new Schema<IVerifyToken>(
+const workerVerifyTokenSchema = new Schema<IWorkerVerifyToken>(
     {
         email: {
             type: String,
@@ -30,8 +30,8 @@ const verifyTokenSchema = new Schema<IVerifyToken>(
     }
 )
 
-verifyTokenSchema.index({ token: 1 })
+workerVerifyTokenSchema.index({ token: 1 })
 
-const VerifyToken = mongoose.model<IVerifyToken>('VerifyToken', verifyTokenSchema)
+const WorkerVerifyToken = mongoose.model<IWorkerVerifyToken>('WorkerVerifyToken', workerVerifyTokenSchema)
 
-export default VerifyToken
+export default WorkerVerifyToken

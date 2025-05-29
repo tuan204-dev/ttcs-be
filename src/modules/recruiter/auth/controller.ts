@@ -1,47 +1,41 @@
+import dotenv from 'dotenv'
 import { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
-import RefreshToken from '~/db/models/refreshTokenModel'
-import User from '~/db/models/userModel'
-import { getResponse, isEmail } from '~/utils/common'
+import { ErrorMessages } from '~/constants/common'
+import { getResponse } from '~/utils/common'
 import { sendVerifyEmail } from '~/utils/sendMail'
 import { ILgoutUser, ILoginUser } from './type'
-import VerifyToken from '~/db/models/verifyTokenModel'
-import dotenv from 'dotenv'
-import { ErrorMessages } from '~/constants/common'
+import Recruiter from '~/db/models/recruiterModel'
+import RecruiterRefreshToken from '~/db/models/recruiterRefreshTokenModel'
+import RecruiterVerifyToken from '~/db/models/recruiterVerifyTokenModel'
 
 dotenv.config()
 
-export const login = async (req: Request<unknown, unknown, ILoginUser>, res: Response) => {
+export const recruiterLogin = async (req: Request<unknown, unknown, ILoginUser>, res: Response) => {
     try {
-        const { loginName, password } = req.body
+        const { email, password } = req.body
 
-        let user
+        const recruiter = await Recruiter.findOne({ email })
 
-        if (isEmail(loginName)) {
-            user = await User.findOne({ email: loginName })
-        } else {
-            user = await User.findOne({ loginName })
-        }
-
-        if (!user) {
-            res.status(400).json({ message: 'User name or password is invalid' })
+        if (!recruiter) {
+            res.status(400).json({ message: ErrorMessages.INVALID_CREDENTIALS })
             return
         }
 
-        const isPasswordValid = await user.comparePassword(password)
+        const isPasswordValid = await recruiter.comparePassword(password)
 
         if (!isPasswordValid) {
-            res.status(400).json({ message: 'User name or password is invalid' })
+            res.status(400).json({ message: ErrorMessages.INVALID_CREDENTIALS })
             return
         }
 
         // Generate JWT access token
-        const accessToken = user.genJWTAccessToken()
+        const accessToken = recruiter.genJWTAccessToken()
         const refreshToken = uuidv4()
 
         // Save refresh token
-        await RefreshToken.create({
-            userId: user._id,
+        await RecruiterRefreshToken.create({
+            recruiterId: recruiter._id,
             token: refreshToken,
             expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
             isRevoked: false
@@ -51,7 +45,7 @@ export const login = async (req: Request<unknown, unknown, ILoginUser>, res: Res
             getResponse({
                 message: 'Login successful',
                 data: {
-                    user: user.toJSON(),
+                    recruiter: recruiter.toJSON(),
                     accessToken,
                     refreshToken
                 }
@@ -63,18 +57,18 @@ export const login = async (req: Request<unknown, unknown, ILoginUser>, res: Res
     }
 }
 
-export const logout = async (req: Request<unknown, unknown, ILgoutUser>, res: Response) => {
+export const recruiterLogout = async (req: Request<unknown, unknown, ILgoutUser>, res: Response) => {
     try {
         const { refreshToken } = req.body
 
-        const refreshTokenDoc = await RefreshToken.findOne({ token: refreshToken })
+        const refreshTokenDoc = await RecruiterRefreshToken.findOne({ token: refreshToken })
 
         if (!refreshTokenDoc) {
             res.status(400).json({ message: 'Invalid refresh token' })
             return
         }
 
-        RefreshToken.updateOne({ token: refreshToken }, { isRevoked: true }).exec()
+        await RecruiterRefreshToken.updateOne({ token: refreshToken }, { isRevoked: true })
 
         res.status(200).json({ message: 'Logout successful' })
     } catch (e) {
@@ -83,33 +77,33 @@ export const logout = async (req: Request<unknown, unknown, ILgoutUser>, res: Re
     }
 }
 
-export const refreshToken = async (req: Request, res: Response) => {
+export const refreshRecruiterToken = async (req: Request, res: Response) => {
     try {
         const { refreshToken } = req.body
 
-        const refreshTokenDoc = await RefreshToken.findOne({ token: refreshToken })
+        const refreshTokenDoc = await RecruiterRefreshToken.findOne({ token: refreshToken })
 
         if (!refreshTokenDoc || refreshTokenDoc.isRevoked || refreshTokenDoc.expiresAt < new Date()) {
-            res.status(400).json({ message: 'Invalid or revoked refresh token' })
+            res.status(400).json({ message: ErrorMessages.INVALID_REFRESH_TOKEN })
             return
         }
 
-        const user = await User.findById(refreshTokenDoc.userId)
+        const recruiter = await Recruiter.findById(refreshTokenDoc.recruiterId)
 
-        if (!user) {
-            res.status(400).json({ message: 'User not found' })
+        if (!recruiter) {
+            res.status(400).json({ message: ErrorMessages.USER_NOT_FOUND })
             return
         }
 
-        const accessToken = user.genJWTAccessToken()
+        const accessToken = recruiter.genJWTAccessToken()
 
         const newRefreshToken = uuidv4()
 
         // delete old refresh token
-        await RefreshToken.deleteOne({ _id: refreshTokenDoc._id })
+        await RecruiterRefreshToken.deleteOne({ _id: refreshTokenDoc._id })
         // Create new refresh token
-        await RefreshToken.create({
-            userId: user._id,
+        await RecruiterRefreshToken.create({
+            recruiterId: recruiter._id,
             token: newRefreshToken,
             expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
             isRevoked: false
@@ -134,16 +128,16 @@ export const refreshToken = async (req: Request, res: Response) => {
     }
 }
 
-export const getUserInfo = async (req: Request, res: Response) => {
+export const getRecruiterInfo = async (req: Request, res: Response) => {
     try {
-        const userId = req.user?.id
+        const recruiterId = req.user?.id
 
-        const user = await User.findById(userId)
+        const recruiter = await Recruiter.findById(recruiterId)
 
-        if (!user) {
+        if (!recruiter) {
             res.status(404).json(
                 getResponse({
-                    message: 'User not found'
+                    message: ErrorMessages.USER_NOT_FOUND
                 })
             )
             return
@@ -152,7 +146,7 @@ export const getUserInfo = async (req: Request, res: Response) => {
         res.status(200).json(
             getResponse({
                 message: 'User info retrieved successfully',
-                data: user.toJSON()
+                data: recruiter.toJSON()
             })
         )
     } catch (e) {
@@ -169,9 +163,9 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
     try {
         const { email } = req.body
 
-        const user = await User.findOne({ email })
+        const recruiter = await Recruiter.findOne({ email })
 
-        if (user) {
+        if (recruiter) {
             res.status(400).json(
                 getResponse({
                     message: ErrorMessages.EMAIL_ALREADY_EXISTS
@@ -184,14 +178,14 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
 
         const expiredAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
 
-        const existingToken = await VerifyToken.findOne({ email })
+        const existingToken = await RecruiterVerifyToken.findOne({ email })
 
         if (existingToken) {
             existingToken.token = verifyToken
             existingToken.expiredAt = expiredAt
             await existingToken.save()
         } else {
-            const verifyTokenDoc = await VerifyToken.create({
+            const verifyTokenDoc = await RecruiterVerifyToken.create({
                 email,
                 token: verifyToken,
                 expiredAt
@@ -203,7 +197,7 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
 
         await sendVerifyEmail({
             email,
-            name: 'User',
+            name: 'Recruiter',
             verifyLink
         })
 
@@ -222,11 +216,11 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
     }
 }
 
-export const createUser = async (req: Request, res: Response) => {
+export const createRecruiter = async (req: Request, res: Response) => {
     try {
-        const { token, loginName, password, firstName, lastName, description, location, occupation } = req.body
+        const { token, password, firstName, lastName, phone, gender, location, avatar } = req.body
 
-        const tokenDoc = await VerifyToken.findOne({ token })
+        const tokenDoc = await RecruiterVerifyToken.findOne({ token })
 
         if (!tokenDoc || tokenDoc.expiredAt < new Date()) {
             res.status(400).json(
@@ -237,38 +231,27 @@ export const createUser = async (req: Request, res: Response) => {
             return
         }
 
-        const user = await User.findOne({ loginName })
-
-        if (user) {
-            res.status(400).json(
-                getResponse({
-                    message: ErrorMessages.LOGIN_NAME_ALREADY_EXISTS
-                })
-            )
-            return
-        }
-
-        const newUser = new User({
+        const newRecruiter = new Recruiter({
             email: tokenDoc.email,
-            loginName,
             password,
             firstName,
             lastName,
-            description,
+            phone,
+            gender,
             location,
-            occupation
+            avatar,
         })
 
-        await newUser.save()
+        await newRecruiter.save()
 
-        await VerifyToken.deleteOne({ _id: tokenDoc._id })
+        await RecruiterVerifyToken.deleteOne({ _id: tokenDoc._id })
 
-        res.status(201).json({ message: 'User created successfully' })
+        res.status(201).json({ message: 'Recruiter created successfully' })
     } catch (e) {
-        console.log('Error creating user:', e)
+        console.log('Error creating recruiter:', e)
         res.status(500).json(
             getResponse({
-                message: 'Failed to create user'
+                message: 'Failed to create recruiter'
             })
         )
     }

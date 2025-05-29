@@ -1,17 +1,22 @@
 import mongoose, { Document, Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { Gender } from '~/constants/enum'
+import { ISkill } from '~/types/skill'
+import { ILocation } from '~/types/ILocation'
 
-// Interface định nghĩa cấu trúc của User document
-export interface IUser extends Document {
+export interface IWorker extends Document {
     email: string
-    loginName: string
     password: string
     firstName: string
     lastName: string
-    location?: string
-    description?: string
-    occupation?: string
+    phone?: string
+    gender: Gender
+    location?: ILocation
+    avatar?: string
+    education?: string
+    skills?: ISkill[]
+    isOpenToOffer?: boolean
     createdAt: Date
     updatedAt: Date
 
@@ -21,7 +26,7 @@ export interface IUser extends Document {
 }
 
 // Schema định nghĩa cấu trúc collection
-const userSchema = new Schema<IUser>(
+const workerSchema = new Schema<IWorker>(
     {
         email: {
             type: String,
@@ -29,14 +34,6 @@ const userSchema = new Schema<IUser>(
             unique: true,
             trim: true,
             lowercase: true
-        },
-        loginName: {
-            type: String,
-            required: true,
-            unique: true,
-            trim: true,
-            minlength: 3,
-            maxlength: 20
         },
         password: {
             type: String,
@@ -54,23 +51,48 @@ const userSchema = new Schema<IUser>(
             trim: true,
             maxlength: 50
         },
-        location: {
+        phone: {
             type: String,
             trim: true,
-            maxlength: 100,
+            maxlength: 15,
             default: ''
         },
-        description: {
+        gender: {
+            type: Number,
+            required: true,
+            default: Gender.UNKNOWN
+        },
+        location: {
+            type: {
+                province: { type: String, required: true, trim: true, maxlength: 100 },
+                district: { type: String, required: true, trim: true, maxlength: 100 },
+                ward: { type: String, required: true, trim: true, maxlength: 100 }
+            },
+            default: {}
+        },
+        avatar: {
+            type: String,
+            trim: true,
+            default: ''
+        },
+        education: {
             type: String,
             trim: true,
             maxlength: 500,
             default: ''
         },
-        occupation: {
-            type: String,
-            trim: true,
-            maxlength: 100,
-            default: ''
+        skills: {
+            type: [
+                {
+                    name: { type: String, required: true, trim: true, maxlength: 50 },
+                    level: { type: Number, required: true, default: 1 } // Giả sử level là số từ 1 đến 5
+                }
+            ],
+            default: []
+        },
+        isOpenToOffer: {
+            type: Boolean,
+            default: true
         }
     },
     {
@@ -80,10 +102,10 @@ const userSchema = new Schema<IUser>(
 )
 
 // Index để tối ưu hóa truy vấn
-userSchema.index({ loginName: 1 })
+workerSchema.index({ email: 1 })
 
 // Middleware để hash password trước khi save
-userSchema.pre('save', async function (next) {
+workerSchema.pre('save', async function (next) {
     // Chỉ hash password khi password được thay đổi
     if (!this.isModified('password')) return next()
 
@@ -97,15 +119,15 @@ userSchema.pre('save', async function (next) {
 })
 
 // Method để so sánh password
-userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+workerSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
     return bcrypt.compare(candidatePassword, this.password)
 }
 
 // Method để tạo JWT access token
-userSchema.methods.genJWTAccessToken = function (): string {
+workerSchema.methods.genJWTAccessToken = function (): string {
     const payload = {
         id: this._id,
-        loginName: this.loginName
+        email: this.email
     }
 
     const secretKey = process.env.JWT_ACCESS_TOKEN_SECRET
@@ -122,13 +144,13 @@ userSchema.methods.genJWTAccessToken = function (): string {
 }
 
 // Transform để loại bỏ password khỏi JSON response
-userSchema.methods.toJSON = function () {
-    const userObject = this.toObject()
-    delete userObject.password
-    return userObject
+workerSchema.methods.toJSON = function () {
+    const workerObject = this.toObject()
+    delete workerObject.password
+    return workerObject
 }
 
 // Tạo và export model
-const User = mongoose.model<IUser>('User', userSchema)
+const Worker = mongoose.model<IWorker>('Worker', workerSchema)
 
-export default User
+export default Worker

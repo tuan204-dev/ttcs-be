@@ -1,7 +1,7 @@
 
 
 export interface ILoginUser {
-    loginName: string
+    email: string
     password: string
 }
 

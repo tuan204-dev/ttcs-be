@@ -1,9 +1,8 @@
+import cors from 'cors'
 import express from 'express'
 import dbConnect from './db/dbConnect'
-import authRoutes from './modules/auth/routes'
-import postRoutes from './modules/post/routes'
-import userRoutes from './modules/user/routes'
-import cors from 'cors'
+import recruiterRoutes from './modules/recruiter/routes'
+import workerRoutes from './modules/worker/routes'
 
 const PORT = 8080
 
@@ -15,9 +14,8 @@ app.use(cors())
 
 app.use(express.json())
 
-app.use('/auth', authRoutes)
-app.use('/user', userRoutes)
-app.use('/post', postRoutes)
+app.use('/worker', workerRoutes)
+app.use('/recruiter', recruiterRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)

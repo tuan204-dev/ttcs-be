@@ -1,24 +1,21 @@
-import mongoose from 'mongoose'
+import mongoose, { Document } from 'mongoose'
 
-export interface IRefreshToken extends Document {
-    userId: mongoose.Types.ObjectId
+export interface IRecruiterRefreshToken extends Document {
+    recruiterId: mongoose.Types.ObjectId
     token: string
     expiresAt: Date
     isRevoked: boolean
     createdAt: Date
     updatedAt: Date
-
-    // Methods
-    // comparePassword(candidatePassword: string): Promise<boolean>
 }
 
 // Schema định nghĩa cấu trúc collection
-const refreshTokenSchema = new mongoose.Schema<IRefreshToken>(
+const recruiterRefreshTokenSchema = new mongoose.Schema<IRecruiterRefreshToken>(
     {
-        userId: {
+        recruiterId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'User'
+            ref: 'Worker'
         },
         token: {
             type: String,
@@ -40,9 +37,12 @@ const refreshTokenSchema = new mongoose.Schema<IRefreshToken>(
     }
 )
 
-refreshTokenSchema.index({ token: 1 })
+recruiterRefreshTokenSchema.index({ token: 1 })
 
 // Tạo và export model
-const RefreshToken = mongoose.model<IRefreshToken>('RefreshToken', refreshTokenSchema)
+const RecruiterRefreshToken = mongoose.model<IRecruiterRefreshToken>(
+    'RecruiterRefreshToken',
+    recruiterRefreshTokenSchema
+)
 
-export default RefreshToken
+export default RecruiterRefreshToken
