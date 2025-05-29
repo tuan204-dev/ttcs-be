@@ -1,9 +1,7 @@
-import mongoose, { Document, Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import mongoose, { Document, Schema } from 'mongoose'
 import { Gender } from '~/constants/enum'
-import { ISkill } from '~/types/skill'
-import { ILocation } from '~/types/ILocation'
 
 export interface IRecruiter extends Document {
     email: string
@@ -55,7 +53,7 @@ const recruiterSchema = new Schema<IRecruiter>(
         },
         gender: {
             type: Number,
-            required: true,
+            enum: Object.values(Gender),
             default: Gender.UNKNOWN
         },
         avatar: {

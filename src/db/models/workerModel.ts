@@ -59,7 +59,7 @@ const workerSchema = new Schema<IWorker>(
         },
         gender: {
             type: Number,
-            required: true,
+            enum: Object.values(Gender),
             default: Gender.UNKNOWN
         },
         location: {
