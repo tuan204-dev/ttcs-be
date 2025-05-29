@@ -1,7 +1,8 @@
 import Joi from 'joi'
+import { Gender } from '~/constants/enum'
 
 export const loginWorkerSchema = Joi.object({
-    loginName: Joi.string().min(5).required(),
+    email: Joi.string().email().required(),
     password: Joi.string().min(8).required()
 })
 
@@ -19,7 +20,7 @@ export const changePasswordSchema = Joi.object({
 })
 
 export const resetPasswordSchema = Joi.object({
-    loginName: Joi.string().min(3).max(30).required(),
+    email: Joi.string().email().max(30).required(),
     newPassword: Joi.string().min(8).required()
 })
 
@@ -29,11 +30,10 @@ export const sendVerifyEmailSchema = Joi.object({
 
 export const createWorkerSchema = Joi.object({
     token: Joi.string().required(),
-    loginName: Joi.string().min(3).max(30).required(),
     password: Joi.string().min(8).required(),
     firstName: Joi.string().min(1).max(50).required(),
     lastName: Joi.string().min(1).max(50).required(),
-    description: Joi.string().max(500).optional().allow(''),
-    location: Joi.string().max(100).optional().allow(''),
-    occupation: Joi.string().max(100).optional().allow('')
+    phone: Joi.string().min(10).max(15).optional(),
+    gender: Joi.number().optional(),
+    avatar: Joi.string().uri().optional()
 })

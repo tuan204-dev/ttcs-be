@@ -24,7 +24,6 @@ const recruitingSchema = new Schema<IRecruiting>(
         progress: {
             type: Number,
             default: RecruitingProgress.APPLIED,
-            enum: Object.values(RecruitingProgress)
         }
     },
     {

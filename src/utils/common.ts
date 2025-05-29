@@ -3,11 +3,12 @@ import { IResponse } from '../types/ICommon'
 interface IResponseParams<T> {
     data?: T | null
     message?: string
+    success?: boolean
 }
 
-export const getResponse = <T>({ data = null, message }: IResponseParams<T>): IResponse<T | null> => {
+export const getResponse = <T>({ data = null, message, success }: IResponseParams<T>): IResponse<T | null> => {
     return {
-        success: !!data,
+        success: success !== undefined ? success : !!data,
         message: message || (data ? 'Success' : 'Failed'),
         data: data as T | null
     }

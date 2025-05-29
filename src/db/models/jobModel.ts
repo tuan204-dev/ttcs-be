@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose'
 import { JobType, RecruitingStatus } from '~/constants/enum'
 import { ILocation } from '~/types/ILocation'
-import { SalaryRange } from '~/types/job'
+import { ISalaryRange } from '~/types/job'
 import { ISkill } from '~/types/skill'
 
 export interface IJob extends Document {
@@ -9,7 +9,7 @@ export interface IJob extends Document {
     recruitingStatus: RecruitingStatus
     description: string
     location: ILocation
-    salaryRange: SalaryRange
+    salaryRange: ISalaryRange
     jobType: JobType
     skillRequired: ISkill[]
     recruiterId: mongoose.Types.ObjectId
@@ -28,7 +28,6 @@ const jobSchema = new Schema<IJob>(
         },
         recruitingStatus: {
             type: Number,
-            enum: Object.values(RecruitingStatus),
             default: RecruitingStatus.DRAFT
         },
         description: {

@@ -59,7 +59,6 @@ const workerSchema = new Schema<IWorker>(
         },
         gender: {
             type: Number,
-            enum: Object.values(Gender),
             default: Gender.UNKNOWN
         },
         location: {
@@ -130,7 +129,7 @@ workerSchema.methods.genJWTAccessToken = function (): string {
         email: this.email
     }
 
-    const secretKey = process.env.JWT_ACCESS_TOKEN_SECRET
+    const secretKey = process.env.WORKER_JWT_ACCESS_TOKEN_SECRET
 
     if (!secretKey) {
         throw new Error('JWT secret key is not defined')
