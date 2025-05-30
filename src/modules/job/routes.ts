@@ -1,7 +1,17 @@
 import { Router } from 'express'
-import { recruiterAuthentication } from '~/middlewares/auth'
+import { recruiterAuthentication, workerAuthentication } from '~/middlewares/auth'
 import { validateBody } from '~/middlewares/validation'
-import { closeJob, createJob, editJob, getJobs, pauseJob, publicJob } from './controller'
+import {
+    applyJob,
+    closeJob,
+    createJob,
+    editJob,
+    getJobs,
+    pauseJob,
+    publicJob,
+    rejectRecruiting,
+    upProgressStatusRecruiting
+} from './controller'
 import { createJobSchema, editJobSchema } from './schema'
 
 const jobRoutes = Router()
@@ -12,5 +22,8 @@ jobRoutes.get('/', getJobs)
 jobRoutes.post('/:id/public', recruiterAuthentication, publicJob)
 jobRoutes.post('/:id/pause', recruiterAuthentication, pauseJob)
 jobRoutes.post('/:id/close', recruiterAuthentication, closeJob)
+jobRoutes.post('/:id/apply', workerAuthentication, applyJob)
+jobRoutes.post('/recruiting/:id/reject', recruiterAuthentication, rejectRecruiting)
+jobRoutes.post('/recruiting/:id/up', recruiterAuthentication, upProgressStatusRecruiting)
 
 export default jobRoutes
