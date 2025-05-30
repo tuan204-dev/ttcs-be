@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { workerAuthentication } from '~/middlewares/auth'
+import { recruiterAuthentication } from '~/middlewares/auth'
 import { validateBody } from '~/middlewares/validation'
 import {
     createRecruiter,
@@ -10,20 +10,20 @@ import {
     sendVerifyEmailHandler
 } from './controller'
 import {
-    createWorkerSchema,
-    loginWorkerSchema,
-    logoutWorkerSchema,
+    createRecruiterSchema,
+    loginRecruiterSchema,
+    logoutRecruiterSchema,
     refreshTokenSchema,
     sendVerifyEmailSchema
 } from './schema'
 
 const recruiterAuthRoutes = Router()
 
-recruiterAuthRoutes.post('/login', validateBody(loginWorkerSchema), recruiterLogin)
-recruiterAuthRoutes.post('/logout', validateBody(logoutWorkerSchema), recruiterLogout)
+recruiterAuthRoutes.post('/login', validateBody(loginRecruiterSchema), recruiterLogin)
+recruiterAuthRoutes.post('/logout', validateBody(logoutRecruiterSchema), recruiterLogout)
 recruiterAuthRoutes.post('/refresh', validateBody(refreshTokenSchema), refreshRecruiterToken)
-recruiterAuthRoutes.get('/info', workerAuthentication, getRecruiterInfo)
+recruiterAuthRoutes.get('/info', recruiterAuthentication, getRecruiterInfo)
 recruiterAuthRoutes.post('/send-mail', validateBody(sendVerifyEmailSchema), sendVerifyEmailHandler)
-recruiterAuthRoutes.post('/register', validateBody(createWorkerSchema), createRecruiter)
+recruiterAuthRoutes.post('/register', validateBody(createRecruiterSchema), createRecruiter)
 
 export default recruiterAuthRoutes

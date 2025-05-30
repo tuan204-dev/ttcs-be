@@ -5,7 +5,7 @@ export interface ILoginUser {
     password: string
 }
 
-export interface ILgoutUser {
+export interface ILogoutUser {
     refreshToken: string
 }
 

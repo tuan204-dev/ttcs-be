@@ -6,7 +6,7 @@ import Worker from '~/db/models/workerModel'
 import WorkerRefreshToken from '~/db/models/workerRefreshTokenModel'
 import { getResponse } from '~/utils/common'
 import { sendVerifyEmail } from '~/utils/sendMail'
-import { ILgoutUser, ILoginUser } from './type'
+import { ILogoutUser, ILoginUser } from './type'
 import WorkerVerifyToken from '~/db/models/workerVerifyTokenModel'
 
 dotenv.config()
@@ -57,7 +57,7 @@ export const workerLogin = async (req: Request<unknown, unknown, ILoginUser>, re
     }
 }
 
-export const workerLogout = async (req: Request<unknown, unknown, ILgoutUser>, res: Response) => {
+export const workerLogout = async (req: Request<unknown, unknown, ILogoutUser>, res: Response) => {
     try {
         const { refreshToken } = req.body
 

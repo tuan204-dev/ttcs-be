@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { ErrorMessages } from '~/constants/common'
 import { getResponse } from '~/utils/common'
 import { sendVerifyEmail } from '~/utils/sendMail'
-import { ILgoutUser, ILoginUser } from './type'
+import { ILogoutUser, ILoginUser } from './type'
 import Recruiter from '~/db/models/recruiterModel'
 import RecruiterRefreshToken from '~/db/models/recruiterRefreshTokenModel'
 import RecruiterVerifyToken from '~/db/models/recruiterVerifyTokenModel'
@@ -57,7 +57,7 @@ export const recruiterLogin = async (req: Request<unknown, unknown, ILoginUser>,
     }
 }
 
-export const recruiterLogout = async (req: Request<unknown, unknown, ILgoutUser>, res: Response) => {
+export const recruiterLogout = async (req: Request<unknown, unknown, ILogoutUser>, res: Response) => {
     try {
         const { refreshToken } = req.body
 

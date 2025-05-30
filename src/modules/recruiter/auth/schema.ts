@@ -1,12 +1,11 @@
 import Joi from 'joi'
-import { Gender } from '~/constants/enum'
 
-export const loginWorkerSchema = Joi.object({
+export const loginRecruiterSchema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required()
 })
 
-export const logoutWorkerSchema = Joi.object({
+export const logoutRecruiterSchema = Joi.object({
     refreshToken: Joi.string().required()
 })
 
@@ -28,7 +27,7 @@ export const sendVerifyEmailSchema = Joi.object({
     email: Joi.string().email().required()
 })
 
-export const createWorkerSchema = Joi.object({
+export const createRecruiterSchema = Joi.object({
     token: Joi.string().required(),
     password: Joi.string().min(8).required(),
     firstName: Joi.string().min(1).max(50).required(),
