@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import workerAuthRoutes from './auth/routes'
+import recruiterAuthRoutes from './auth/routes'
 
 const recruiterRoutes = Router()
 
-recruiterRoutes.use('/auth', workerAuthRoutes)
+recruiterRoutes.use('/auth', recruiterAuthRoutes)
 
 export default recruiterRoutes

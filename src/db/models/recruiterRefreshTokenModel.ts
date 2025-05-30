@@ -15,7 +15,7 @@ const recruiterRefreshTokenSchema = new mongoose.Schema<IRecruiterRefreshToken>(
         recruiterId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'Worker'
+            ref: 'Recruiter'
         },
         token: {
             type: String,
