@@ -203,7 +203,8 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
 
         res.status(200).json(
             getResponse({
-                message: 'Verification email sent successfully'
+                message: 'Verification email sent successfully',
+                success: true
             })
         )
     } catch (e) {
