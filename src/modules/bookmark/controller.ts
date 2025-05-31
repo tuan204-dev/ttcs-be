@@ -61,7 +61,8 @@ export const removeBookmark = async (req: Request, res: Response) => {
 
         res.status(200).json(
             getResponse({
-                message: 'Bookmark removed successfully'
+                message: 'Bookmark removed successfully',
+                success: true
             })
         )
     } catch (e) {
