@@ -6,11 +6,10 @@ import { skillSchema } from '~/types/skill'
 export const createJobSchema = Joi.object({
     title: Joi.string().min(3).max(100).required(),
     description: Joi.string().min(10).max(5000).required(),
-    location: locationSchema.required(),
+    location: Joi.string().required(),
     salaryRange: salaryRangeSchema.required(),
     jobType: Joi.number().required(),
-    skillRequired: Joi.array().items(skillSchema).default([]),
-    companyId: Joi.string().required()
+    // companyId: Joi.string().required()
 })
 
 export const editJobSchema = Joi.object({

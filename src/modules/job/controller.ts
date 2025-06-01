@@ -7,7 +7,7 @@ import Recruiting from '~/db/models/recruitingModel'
 
 export const createJob = async (req: Request<unknown, unknown, ICreateJob>, res: Response) => {
     try {
-        const { title, description, location, salaryRange, jobType, skillRequired, companyId } = req.body
+        const { title, description, location, salaryRange, jobType } = req.body
 
         const recruiterId = req.user?.id
 
@@ -17,9 +17,7 @@ export const createJob = async (req: Request<unknown, unknown, ICreateJob>, res:
             location,
             salaryRange,
             jobType,
-            skillRequired,
             recruiterId,
-            companyId,
             recruitingStatus: RecruitingStatus.DRAFT
         })
 
@@ -87,14 +85,24 @@ export const editJob = async (req: Request<{ id: string }, unknown, IEditJob>, r
 
 export const getJobs = async (req: Request<unknown, unknown, unknown, GetJobsQuery>, res: Response) => {
     try {
-        const { recruiterId, companyId } = req.query
+        const { recruiterId, companyId, title } = req.query
+        const userId = req.user?.id
 
         const query: any = {}
         if (recruiterId) {
             query.recruiterId = recruiterId
         }
+
+        if (userId && !recruiterId) {
+            query.recruiterId = userId
+        }
+
         if (companyId) {
             query.companyId = companyId
+        }
+
+        if (title) {
+            query.title = { $regex: title, $options: 'i' } // Case-insensitive search
         }
 
         const jobs = await Job.find(query).sort({ createdAt: -1 })
@@ -110,6 +118,61 @@ export const getJobs = async (req: Request<unknown, unknown, unknown, GetJobsQue
         res.status(200).json(
             getResponse({
                 message: 'Get jobs failed',
+                data: [],
+                success: false
+            })
+        )
+    }
+}
+
+export const getPublicJobs = async (req: Request, res: Response) => {
+    try {
+        const { title, minSalary, maxSalary, jobType } = req.query
+
+        const query: any = {
+            recruitingStatus: RecruitingStatus.PUBLIC
+        }
+
+        if (title) {
+            query.title = { $regex: title, $options: 'i' } // Case-insensitive search
+        }
+
+        if (minSalary) {
+            query['salaryRange.min'] = { $gte: Number(minSalary) }
+        }
+
+        if (maxSalary) {
+            query['salaryRange.max'] = { $lte: Number(maxSalary) }
+        }
+
+        if (jobType) {
+            if (Array.isArray(jobType)) {
+                query.jobType = { $in: jobType.map(Number) } // Convert to numbers if needed
+            } else {
+                query.jobType = Number(jobType) // Convert to number if it's a single value
+            }
+        }
+
+        const jobs = await Job.find(query).populate('recruiterId').sort({ createdAt: -1 })
+
+        res.status(200).json(
+            getResponse({
+                message: 'Get public jobs successfully',
+                data: jobs.map((job) => {
+                    const jobData = job.toJSON()
+                    return {
+                        ...jobData,
+                        recruiter: job.recruiterId ? job.recruiterId.toJSON() : null,
+                        recruiterId: undefined // Exclude recruiterId from the response
+                    }
+                })
+            })
+        )
+    } catch (e) {
+        console.log(e)
+        res.status(500).json(
+            getResponse({
+                message: 'Get public jobs failed',
                 data: [],
                 success: false
             })

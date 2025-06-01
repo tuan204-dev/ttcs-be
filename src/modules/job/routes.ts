@@ -7,6 +7,7 @@ import {
     createJob,
     editJob,
     getJobs,
+    getPublicJobs,
     pauseJob,
     publicJob,
     rejectRecruiting,
@@ -18,7 +19,8 @@ const jobRoutes = Router()
 
 jobRoutes.post('/', recruiterAuthentication, validateBody(createJobSchema), createJob)
 jobRoutes.put('/:id', recruiterAuthentication, validateBody(editJobSchema), editJob)
-jobRoutes.get('/', getJobs)
+jobRoutes.get('/', recruiterAuthentication, getJobs)
+jobRoutes.get('/worker', workerAuthentication, getPublicJobs)
 jobRoutes.post('/:id/public', recruiterAuthentication, publicJob)
 jobRoutes.post('/:id/pause', recruiterAuthentication, pauseJob)
 jobRoutes.post('/:id/close', recruiterAuthentication, closeJob)

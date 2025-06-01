@@ -8,12 +8,11 @@ export interface IJob extends Document {
     title: string
     recruitingStatus: RecruitingStatus
     description: string
-    location: ILocation
+    location: string
     salaryRange: ISalaryRange
     jobType: JobType
-    skillRequired: ISkill[]
     recruiterId: mongoose.Types.ObjectId
-    companyId: mongoose.Types.ObjectId
+    // companyId: mongoose.Types.ObjectId
     expiredAt: Date
     updatedAt: Date
 }
@@ -37,12 +36,10 @@ const jobSchema = new Schema<IJob>(
             default: ''
         },
         location: {
-            type: {
-                province: { type: String, required: true, trim: true, maxlength: 100 },
-                district: { type: String, required: true, trim: true, maxlength: 100 },
-                ward: { type: String, required: true, trim: true, maxlength: 100 }
-            },
-            default: {}
+            type: String,
+            required: true,
+            trim: true,
+            maxlength: 200 
         },
         salaryRange: {
             type: {
@@ -55,25 +52,16 @@ const jobSchema = new Schema<IJob>(
             type: Number,
             required: true,
         },
-        skillRequired: {
-            type: [
-                {
-                    name: { type: String, required: true, trim: true, maxlength: 50 },
-                    level: { type: Number, required: true, default: 1 } // Giả sử level là số từ 1 đến 5
-                }
-            ],
-            default: []
-        },
         recruiterId: {
             type: Schema.Types.ObjectId,
             ref: 'Recruiter',
             required: true
         },
-        companyId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Company',
-            required: true
-        }
+        // companyId: {
+        //     type: Schema.Types.ObjectId,
+        //     ref: 'Company',
+        //     required: true
+        // }
     },
     {
         timestamps: true,

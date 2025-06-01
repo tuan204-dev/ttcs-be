@@ -25,4 +25,5 @@ export interface IEditJob {
 export interface GetJobsQuery {
     recruiterId?: string
     companyId?: string
+    title?: string
 }
