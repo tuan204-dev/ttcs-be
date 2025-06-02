@@ -61,3 +61,4 @@ export const recruiterAuthentication = async (req: Request, res: Response, next:
         return
     }
 }
+

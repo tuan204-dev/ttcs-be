@@ -12,7 +12,7 @@ export interface IWorker extends Document {
     lastName: string
     phone?: string
     gender: Gender
-    location?: ILocation
+    location?: string
     avatar?: string
     education?: string
     skills?: ISkill[]
@@ -62,12 +62,10 @@ const workerSchema = new Schema<IWorker>(
             default: Gender.UNKNOWN
         },
         location: {
-            type: {
-                province: { type: String, required: true, trim: true, maxlength: 100 },
-                district: { type: String, required: true, trim: true, maxlength: 100 },
-                ward: { type: String, required: true, trim: true, maxlength: 100 }
-            },
-            default: {}
+            type: String,
+            trim: true,
+            maxlength: 100,
+            default: ''
         },
         avatar: {
             type: String,

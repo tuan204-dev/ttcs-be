@@ -85,7 +85,7 @@ export const editJob = async (req: Request<{ id: string }, unknown, IEditJob>, r
 
 export const getJobs = async (req: Request<unknown, unknown, unknown, GetJobsQuery>, res: Response) => {
     try {
-        const { recruiterId, companyId, title } = req.query
+        const { recruiterId, companyId, title, jobType, recruitingStatus } = req.query
         const userId = req.user?.id
 
         const query: any = {}
@@ -102,7 +102,23 @@ export const getJobs = async (req: Request<unknown, unknown, unknown, GetJobsQue
         }
 
         if (title) {
-            query.title = { $regex: title, $options: 'i' } // Case-insensitive search
+            query.title = { $regex: title, $options: 'i' }
+        }
+
+        if (jobType) {
+            if (Array.isArray(jobType)) {
+                query.jobType = { $in: jobType.map(Number) }
+            } else {
+                query.jobType = Number(jobType)
+            }
+        }
+
+        if (recruitingStatus) {
+            if (Array.isArray(recruitingStatus)) {
+                query.recruitingStatus = { $in: recruitingStatus.map(Number) }
+            } else {
+                query.recruitingStatus = Number(recruitingStatus)
+            }
         }
 
         const jobs = await Job.find(query).sort({ createdAt: -1 })
@@ -174,6 +190,44 @@ export const getPublicJobs = async (req: Request, res: Response) => {
             getResponse({
                 message: 'Get public jobs failed',
                 data: [],
+                success: false
+            })
+        )
+    }
+}
+
+export const getPublicJobById = async (req: Request, res: Response) => {
+    try {
+        const jobId = req.params.id
+
+        const job = await Job.findById(jobId).populate('recruiterId')
+
+        if (!job || job.recruitingStatus !== RecruitingStatus.PUBLIC) {
+            res.status(404).json(
+                getResponse({
+                    message: 'Job not found'
+                })
+            )
+            return
+        }
+
+        const jobData = job.toJSON()
+        res.status(200).json(
+            getResponse({
+                message: 'Get public job by id successfully',
+                data: {
+                    ...jobData,
+                    recruiter: job.recruiterId ? job.recruiterId.toJSON() : null,
+                    recruiterId: undefined // Exclude recruiterId from the response
+                }
+            })
+        )
+    } catch (e) {
+        console.log(e)
+        res.status(500).json(
+            getResponse({
+                message: 'Get public job by id failed',
+                data: null,
                 success: false
             })
         )
@@ -329,6 +383,49 @@ export const applyJob = async (req: Request, res: Response) => {
         res.status(500).json(
             getResponse({
                 message: 'Apply job failed'
+            })
+        )
+    }
+}
+
+export const getAllRecruitingByJobId = async (req: Request, res: Response) => {
+    try {
+        const jobId = req.params.id
+        const recruiterId = req.user?.id
+
+        const job = await Job.findById(jobId)
+
+        if (!job || String(job?.toJSON().recruiterId) !== String(recruiterId)) {
+            res.status(404).json(
+                getResponse({
+                    message: 'Job not found'
+                })
+            )
+            return
+        }
+
+        const recruitingList = await Recruiting.find({ jobId }).populate('workerId jobId').sort({ createdAt: -1 })
+
+        res.status(200).json(
+            getResponse({
+                message: 'Get all recruiting by job id successfully',
+                data: recruitingList.map((recruiting) => {
+                    const recruitingData = recruiting.toJSON()
+                    return {
+                        ...recruitingData,
+                        worker: recruiting.workerId ? recruiting.workerId : null,
+                        workerId: undefined, // Exclude workerId from the response
+                        job: recruiting.jobId ? recruiting.jobId : null,
+                        jobId: undefined // Exclude jobId from the response
+                    }
+                })
+            })
+        )
+    } catch (e) {
+        console.log('Get all recruiting by job id failed', e)
+        res.status(500).json(
+            getResponse({
+                message: 'Get all recruiting by job id failed'
             })
         )
     }

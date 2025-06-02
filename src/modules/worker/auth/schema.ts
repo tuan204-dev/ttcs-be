@@ -35,7 +35,7 @@ export const createWorkerSchema = Joi.object({
     firstName: Joi.string().min(1).max(50).required(),
     lastName: Joi.string().min(1).max(50).required(),
     phone: Joi.string().min(10).max(15).optional(),
-    location: locationSchema.optional(),
+    location: Joi.string().optional(),
     gender: Joi.number().optional(),
     avatar: Joi.string().uri().optional(),
     education: Joi.string().optional(),

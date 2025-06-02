@@ -26,4 +26,6 @@ export interface GetJobsQuery {
     recruiterId?: string
     companyId?: string
     title?: string
+    jobType?: JobType | JobType[]
+    recruitingStatus?: RecordingState | RecordingState[]
 }

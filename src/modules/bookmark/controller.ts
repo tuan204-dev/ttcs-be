@@ -19,6 +19,20 @@ export const addBookmark = async (req: Request, res: Response) => {
             )
         }
 
+        const existingBookmark = await Bookmark.findOne({
+            jobId,
+            workerId
+        })
+
+        if (existingBookmark) {
+            res.status(400).json(
+                getResponse({
+                    message: 'Bookmark already exists'
+                })
+            )
+            return
+        }
+
         const bookmark = await Bookmark.create({
             jobId,
             workerId

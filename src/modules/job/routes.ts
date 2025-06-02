@@ -6,7 +6,9 @@ import {
     closeJob,
     createJob,
     editJob,
+    getAllRecruitingByJobId,
     getJobs,
+    getPublicJobById,
     getPublicJobs,
     pauseJob,
     publicJob,
@@ -21,10 +23,12 @@ jobRoutes.post('/', recruiterAuthentication, validateBody(createJobSchema), crea
 jobRoutes.put('/:id', recruiterAuthentication, validateBody(editJobSchema), editJob)
 jobRoutes.get('/', recruiterAuthentication, getJobs)
 jobRoutes.get('/worker', workerAuthentication, getPublicJobs)
+jobRoutes.get('/worker/:id', workerAuthentication, getPublicJobById)
 jobRoutes.post('/:id/public', recruiterAuthentication, publicJob)
 jobRoutes.post('/:id/pause', recruiterAuthentication, pauseJob)
 jobRoutes.post('/:id/close', recruiterAuthentication, closeJob)
 jobRoutes.post('/:id/apply', workerAuthentication, applyJob)
+jobRoutes.get('/:id/recruiting', recruiterAuthentication, getAllRecruitingByJobId)
 jobRoutes.post('/recruiting/:id/reject', recruiterAuthentication, rejectRecruiting)
 jobRoutes.post('/recruiting/:id/up', recruiterAuthentication, upProgressStatusRecruiting)
 
