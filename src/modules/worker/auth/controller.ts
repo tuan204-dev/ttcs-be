@@ -161,6 +161,8 @@ export const getWorkerInfo = async (req: Request, res: Response) => {
 
 export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
     try {
+        const callbackHost = req.get('origin') ?? process.env.FE_WK_URL
+
         const { email } = req.body
 
         const worker = await Worker.findOne({ email })
@@ -193,7 +195,7 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
             await verifyTokenDoc.save()
         }
 
-        const verifyLink = `${process.env.FE_WK_URL}/auth/register/create?token=${verifyToken}`
+        const verifyLink = `${callbackHost}/auth/register/create?token=${verifyToken}`
 
         await sendVerifyEmail({
             email,
