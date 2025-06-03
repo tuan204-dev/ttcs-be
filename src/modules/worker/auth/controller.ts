@@ -45,7 +45,7 @@ export const workerLogin = async (req: Request<unknown, unknown, ILoginUser>, re
             getResponse({
                 message: 'Login successful',
                 data: {
-                    recruiter: worker.toJSON(),
+                    worker: worker.toJSON(),
                     accessToken,
                     refreshToken
                 }
@@ -219,7 +219,21 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
 
 export const createWorker = async (req: Request, res: Response) => {
     try {
-        const { token, password, firstName, lastName, phone, gender, location, avatar, education, skills } = req.body
+        const {
+            token,
+            password,
+            firstName,
+            lastName,
+            phone,
+            gender,
+            location,
+            avatar,
+            education,
+            skills,
+            dateOfBirth,
+            description,
+            careerOrientation
+        } = req.body
 
         const tokenDoc = await WorkerVerifyToken.findOne({ token })
 
@@ -242,7 +256,10 @@ export const createWorker = async (req: Request, res: Response) => {
             location,
             avatar,
             education,
-            skills
+            skills,
+            dateOfBirth,
+            description,
+            careerOrientation
         })
 
         await newWorker.save()

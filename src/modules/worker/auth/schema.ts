@@ -39,5 +39,8 @@ export const createWorkerSchema = Joi.object({
     gender: Joi.number().optional(),
     avatar: Joi.string().uri().optional(),
     education: Joi.string().optional(),
-    skills: Joi.array().items(skillSchema).default([]).optional()
+    skills: Joi.array().items(skillSchema).default([]).optional(),
+    dateOfBirth: Joi.date().required(),
+    description: Joi.string().max(500).optional(),
+    careerOrientation: Joi.string().max(500).optional(),
 })

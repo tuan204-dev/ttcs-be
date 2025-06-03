@@ -1,9 +1,8 @@
-import mongoose, { Document, Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import mongoose, { Document, Schema } from 'mongoose'
 import { Gender } from '~/constants/enum'
 import { ISkill } from '~/types/skill'
-import { ILocation } from '~/types/ILocation'
 
 export interface IWorker extends Document {
     email: string
@@ -17,6 +16,9 @@ export interface IWorker extends Document {
     education?: string
     skills?: ISkill[]
     isOpenToOffer?: boolean
+    dateOfBirth: Date
+    description?: string
+    careerOrientation?: string
     createdAt: Date
     updatedAt: Date
 
@@ -90,6 +92,22 @@ const workerSchema = new Schema<IWorker>(
         isOpenToOffer: {
             type: Boolean,
             default: true
+        },
+        dateOfBirth: {
+            type: Date,
+            required: true,
+        },
+        description: {
+            type: String,
+            trim: true,
+            maxlength: 1000,
+            default: ''
+        },
+        careerOrientation: {
+            type: String,
+            trim: true,
+            maxlength: 500,
+            default: ''
         }
     },
     {
