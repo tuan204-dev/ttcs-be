@@ -10,6 +10,9 @@ export interface ICreateJob {
     salaryRange: ISalaryRange
     jobType: JobType
     skillRequired: ISkill[]
+    responsibilities: string[]
+    requirements: string[]
+    benefits: string[]
     companyId: string
 }
 

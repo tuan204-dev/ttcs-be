@@ -25,8 +25,6 @@ const bookmarkSchema = new Schema<IBookmark>(
     }
 )
 
-bookmarkSchema.index({ token: 1 })
-
 const Bookmark = mongoose.model<IBookmark>('Bookmark', bookmarkSchema)
 
 export default Bookmark

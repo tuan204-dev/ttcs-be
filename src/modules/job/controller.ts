@@ -7,7 +7,8 @@ import Recruiting from '~/db/models/recruitingModel'
 
 export const createJob = async (req: Request<unknown, unknown, ICreateJob>, res: Response) => {
     try {
-        const { title, description, location, salaryRange, jobType } = req.body
+        const { title, description, location, salaryRange, jobType, responsibilities, requirements, benefits } =
+            req.body
 
         const recruiterId = req.user?.id
 
@@ -18,7 +19,10 @@ export const createJob = async (req: Request<unknown, unknown, ICreateJob>, res:
             salaryRange,
             jobType,
             recruiterId,
-            recruitingStatus: RecruitingStatus.DRAFT
+            recruitingStatus: RecruitingStatus.DRAFT,
+            responsibilities,
+            requirements,
+            benefits
         })
 
         res.status(201).json(
@@ -372,10 +376,35 @@ export const applyJob = async (req: Request, res: Response) => {
             progress: RecruitingProgress.APPLIED
         })
 
+        const result = await newRecruiting.populate({
+            path: 'jobId',
+            populate: {
+                path: 'recruiterId'
+            }
+        })
+
+        const data = result.toObject()
+
+        const jobData = data.jobId
+            ? {
+                  ...data.jobId,
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  //@ts-ignore
+                  recruiter: data.jobId?.recruiterId ? data.jobId.recruiterId : null,
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  //@ts-ignore
+                  recruiterId: undefined
+              }
+            : null
+
         res.status(200).json(
             getResponse({
                 message: 'Apply job successfully',
-                data: newRecruiting.toJSON()
+                data: {
+                    ...data,
+                    job: jobData,
+                    jobId: undefined
+                }
             })
         )
     } catch (e) {
@@ -404,7 +433,10 @@ export const getAllRecruitingByJobId = async (req: Request, res: Response) => {
             return
         }
 
-        const recruitingList = await Recruiting.find({ jobId }).populate('workerId jobId').sort({ createdAt: -1 })
+        const recruitingList = await Recruiting.find({ jobId })
+            .select('-messages')
+            .populate('workerId jobId')
+            .sort({ createdAt: -1 })
 
         res.status(200).json(
             getResponse({

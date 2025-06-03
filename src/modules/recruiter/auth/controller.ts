@@ -193,7 +193,7 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
             await verifyTokenDoc.save()
         }
 
-        const verifyLink = `${process.env.FE_APP_URL}/auth/register/create?token=${verifyToken}`
+        const verifyLink = `${process.env.FE_RE_URL}/auth/register/create?token=${verifyToken}`
 
         await sendVerifyEmail({
             email,

@@ -30,8 +30,6 @@ const companySchema = new Schema<ICompany>(
     }
 )
 
-companySchema.index({ token: 1 })
-
 const Company = mongoose.model<ICompany>('Company', companySchema)
 
 export default Company

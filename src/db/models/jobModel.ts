@@ -1,8 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose'
 import { JobType, RecruitingStatus } from '~/constants/enum'
-import { ILocation } from '~/types/ILocation'
 import { ISalaryRange } from '~/types/job'
-import { ISkill } from '~/types/skill'
 
 export interface IJob extends Document {
     title: string
@@ -10,6 +8,9 @@ export interface IJob extends Document {
     description: string
     location: string
     salaryRange: ISalaryRange
+    responsibilities?: string[]
+    requirements?: string[]
+    benefits?: string[]
     jobType: JobType
     recruiterId: mongoose.Types.ObjectId
     // companyId: mongoose.Types.ObjectId
@@ -57,19 +58,24 @@ const jobSchema = new Schema<IJob>(
             ref: 'Recruiter',
             required: true
         },
-        // companyId: {
-        //     type: Schema.Types.ObjectId,
-        //     ref: 'Company',
-        //     required: true
-        // }
+        responsibilities: {
+            type: [String],
+            default: []
+        },
+        requirements: {
+            type: [String],
+            default: []
+        },
+        benefits: {
+            type: [String],
+            default: []
+        },
     },
     {
         timestamps: true,
         versionKey: false
     }
 )
-
-jobSchema.index({ token: 1 })
 
 const Job = mongoose.model<IJob>('Job', jobSchema)
 

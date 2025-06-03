@@ -9,6 +9,9 @@ export const createJobSchema = Joi.object({
     location: Joi.string().required(),
     salaryRange: salaryRangeSchema.required(),
     jobType: Joi.number().required(),
+    responsibilities: Joi.array().items(Joi.string().min(3).max(500)).default([]),
+    requirements: Joi.array().items(Joi.string().min(3).max(500)).default([]),
+    benefits: Joi.array().items(Joi.string().min(3).max(500)).default([])
     // companyId: Joi.string().required()
 })
 
